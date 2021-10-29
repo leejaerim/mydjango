@@ -1,0 +1,8 @@
+App/__pycache__/
+App/migrations/
+App/__init__.py
+App/admin.py
+App/tests.py
+django1/__pycache__/
+django1/__init__.py
+django1/settings.py
