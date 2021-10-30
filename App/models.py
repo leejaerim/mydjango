@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.deletion import CASCADE
 
 class User(models.Model):
-    uid = models.CharField(max_length=12)
+    uid = models.CharField(unique=True,max_length=12)
     password = models.CharField(max_length=12)
     def __str__(self):
         return '{} {}'.format(self.uid, self.password)
