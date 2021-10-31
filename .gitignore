@@ -6,3 +6,5 @@ App/tests.py
 django1/__pycache__/
 django1/__init__.py
 django1/settings.py
+.idea
+db.sqlite3
