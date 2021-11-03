@@ -21,9 +21,6 @@ def login(request):
         password = body['password']
         data = {}
         user = User.objects.get(uid = uid)
-        print(password)
-        print(user.password)
-        print(check_password(password, user.password))
         if check_password(password, user.password):
             request.session['user'] = user.uid
             data['status'] = 'Success'
@@ -36,8 +33,6 @@ def signup(request):
     if request.method  == 'POST':
         if User.objects.filter(uid=body['uid']).exists(): 
             data['Error'] = '이미 존재하는 사용자 입니다.'
-        elif body['uid'] is None or body['password'] is None:
-            data['Error'] = '정보를 정확히 입력하세요.'
         else:
             user = User(
                 uid = body['uid'],
@@ -46,7 +41,6 @@ def signup(request):
             user.save()
             #auth.login(request, user)
             data['status'] = 'Success'
-            request.session['user']=user.uid
         return HttpResponse(json.dumps(data), content_type="application/json")
 def logout(request):
     data = {}
