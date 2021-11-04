@@ -20,12 +20,15 @@ def login(request):
         uid = body['uid']
         password = body['password']
         data = {}
-        user = User.objects.get(uid = uid)
-        if check_password(password, user.password):
-            request.session['user'] = user.uid
-            data['status'] = 'Success'
+        if User.objects.filter(uid=uid).exists():
+            user = User.objects.get(uid = uid)
+            if check_password(password, user.password):
+                request.session['user'] = user.uid
+                data['status'] = 'Success'
+            else:
+                data['Error'] = '비밀번호가 틀렸습니다.'
         else:
-            data['Error'] = '비밀번호가 틀렸습니다.'
+            data['Error'] = '없는 아이디 입니다.'
     return HttpResponse(json.dumps(data), content_type="application/json")
 def signup(request):
     data = {}
