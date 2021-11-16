@@ -11,6 +11,14 @@ from django.views.decorators.csrf import csrf_protect
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.contrib.auth.hashers import check_password, make_password
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import db
+
+cred = credentials.Certificate("./django-fae27-firebase-adminsdk-uvgy6-04d6add42a.json")
+firebase_admin.initialize_app(cred,{
+    'databaseURL':'https://django-fae27-default-rtdb.firebaseio.com/'
+})
 def login(request):
     # if request.method == 'GET':
     #     users = User.objects.all().order_by('-uid')
@@ -23,6 +31,8 @@ def login(request):
         if User.objects.filter(uid=uid).exists():
             user = User.objects.get(uid = uid)
             if check_password(password, user.password):
+                dir = db.reference('history')
+                dir.update({'login':user.uid})
                 request.session['user'] = user.uid
                 data['status'] = 'Success'
             else:
