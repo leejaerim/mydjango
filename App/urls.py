@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.urlpatterns import format_suffix_patterns
-from .views import UserView
-from .models import User
+from .views import UserView, MenuOrderView
+from .models import User,MenuOrder
 from . import views
 
 user_list = UserView.as_view({
@@ -15,11 +15,17 @@ user_detail = UserView.as_view({
     'patch': 'partial_update',
     'delete': 'destroy'
 })
+Menu_OrderView = MenuOrderView.as_view({
+    'get':'list',
+    'post':'create'
+})
 urlpatterns = format_suffix_patterns([
     path('auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('login/', views.login, name = 'login'),
     path('logout/',views.logout,name='logout'),
     path('signup/',views.signup,name='signup'),
+    path('order/',views.order,name='order'),
+    path('menucount/',Menu_OrderView,name='Menu_OrderView'),
     path('users/', user_list, name='user_list'),
     path('users/<int:pk>/', user_detail, name='user_detail'),
 ])

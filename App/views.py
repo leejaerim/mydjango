@@ -2,8 +2,9 @@ from rest_framework import viewsets
 from rest_framework.decorators import permission_classes
 import json
 from rest_framework.serializers import Serializer
-from .serializers import UserSerializer
+from .serializers import UserSerializer,MenuOrderSerializer
 from .models import User
+from .models import MenuOrder
 from rest_framework import permissions
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -11,28 +12,23 @@ from django.views.decorators.csrf import csrf_protect
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.contrib.auth.hashers import check_password, make_password
-import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import db
+import sqlite3
+from datetime import datetime
 
-cred = credentials.Certificate("./django-fae27-firebase-adminsdk-uvgy6-04d6add42a.json")
-firebase_admin.initialize_app(cred,{
-    'databaseURL':'https://django-fae27-default-rtdb.firebaseio.com/'
-})
 def login(request):
     # if request.method == 'GET':
     #     users = User.objects.all().order_by('-uid')
     #     return render(request, {'user':users})
+    data = {}
+    print(request.method)
     if request.method =='POST':
         body = json.loads(request.body)
         uid = body['uid']
         password = body['password']
-        data = {}
+        
         if User.objects.filter(uid=uid).exists():
             user = User.objects.get(uid = uid)
             if check_password(password, user.password):
-                dir = db.reference('history')
-                dir.update({'login':user.uid})
                 request.session['user'] = user.uid
                 data['status'] = 'Success'
             else:
@@ -63,11 +59,39 @@ def logout(request):
     else:
         data['Error'] = '정보를 정확히 입력하세요.'
     return HttpResponse(json.dumps(data), content_type="application/json")    
-        
+def order(request):
+    data = {}
+    body = json.loads(request.body)
+    
+    if request.method  == 'POST':
+        order = MenuOrder(
+            sumCost = body['cost']
+        )
+        order.save()
+        #auth.login(request, user)
+        data['status'] = 'Success'
+        conn = sqlite3.connect("db.sqlite3")
+ 
+        cur = conn.cursor()
+        sql = "select Sum(sumCost) from App_menuorder where regDate =?"
+        cur.execute(sql, (datetime.now().date(),))
+        data['cost'] = cur.fetchall()
+        conn.close()
+        return HttpResponse(json.dumps(data), content_type="application/json")
 @method_decorator(csrf_exempt,name='dispatch')
 class UserView(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = (permissions.AllowAny,)
+    
+    def perform_create(self, serializer):
+        return super().perform_create(serializer)
+        #serializer.save(user=self.request.user)
+
+@method_decorator(csrf_exempt,name='dispatch')
+class MenuOrderView(viewsets.ModelViewSet):
+    queryset = MenuOrder.objects.all()
+    serializer_class = MenuOrderSerializer
     permission_classes = (permissions.AllowAny,)
     
     def perform_create(self, serializer):
