@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.utils import timezone
 class User(models.Model):
     uid = models.CharField(unique=True,max_length=12)
     password = models.CharField(max_length=12)
@@ -25,3 +25,11 @@ class MenuOrder(models.Model):
     regDate =  models.DateField(auto_now=True)
     def __init__(self, *args, **kwargs):
         super().__init__(*args,**kwargs)
+
+class Post(models.Model):
+    author = models.CharField('작성자',max_length=12)
+    title = models.CharField('제목',max_length=32)
+    text = models.TextField('본문')
+    create_at = models.DateField(default=timezone.now)
+    def __str__(self):
+        return self.title

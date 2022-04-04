@@ -2,19 +2,19 @@ from rest_framework import viewsets
 from rest_framework.decorators import permission_classes
 import json
 from rest_framework.serializers import Serializer
-from .serializers import UserSerializer,MenuOrderSerializer
-from .models import User
+from .serializers import PostSerializer, UserSerializer,MenuOrderSerializer
+from .models import User,Post
 from .models import MenuOrder
 from rest_framework import permissions
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.contrib.auth.hashers import check_password, make_password
 import sqlite3
 from datetime import datetime
-
+from django.core.serializers import serialize
 def login(request):
     # if request.method == 'GET':
     #     users = User.objects.all().order_by('-uid')
@@ -78,6 +78,27 @@ def order(request):
         data['cost'] = cur.fetchall()
         conn.close()
         return HttpResponse(json.dumps(data), content_type="application/json")
+def PostlistView(request):
+    data = {}
+    if request.method  == 'POST':
+        body = json.loads(request.body)
+        if not User.objects.filter(uid=body['author']).exists(): 
+            data['Error'] = '존재하지 않는 아이디 입니다.'
+        else:
+            post = Post(
+                author = body['author'],
+                title = body['title'],
+                text = body['text']
+            )
+            post.save()
+            #auth.login(request, user)
+            data['status'] = 'Success'
+        return HttpResponse(json.dumps(data), content_type="application/json")
+    elif request.method == 'GET':
+        res = Post.objects.all()
+        data = json.loads(serialize('json', res))
+        return JsonResponse({'items': data})
+
 @method_decorator(csrf_exempt,name='dispatch')
 class UserView(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -92,6 +113,16 @@ class UserView(viewsets.ModelViewSet):
 class MenuOrderView(viewsets.ModelViewSet):
     queryset = MenuOrder.objects.all()
     serializer_class = MenuOrderSerializer
+    permission_classes = (permissions.AllowAny,)
+    
+    def perform_create(self, serializer):
+        return super().perform_create(serializer)
+        #serializer.save(user=self.request.user)
+
+@method_decorator(csrf_exempt,name='dispatch')
+class PostView(viewsets.ModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
     permission_classes = (permissions.AllowAny,)
     
     def perform_create(self, serializer):

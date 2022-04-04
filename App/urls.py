@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.urlpatterns import format_suffix_patterns
-from .views import UserView, MenuOrderView
+from .views import UserView, MenuOrderView, PostView
 from .models import User,MenuOrder
 from . import views
 
@@ -10,6 +10,16 @@ user_list = UserView.as_view({
     'get':'list'
 })
 user_detail = UserView.as_view({
+    'get': 'retrieve',
+    'put': 'update',
+    'patch': 'partial_update',
+    'delete': 'destroy'
+})
+post_list = PostView.as_view({
+    'post':'create',
+    'get':'list'
+})
+post_detail = PostView.as_view({
     'get': 'retrieve',
     'put': 'update',
     'patch': 'partial_update',
@@ -24,6 +34,7 @@ urlpatterns = format_suffix_patterns([
     path('login/', views.login, name = 'login'),
     path('logout/',views.logout,name='logout'),
     path('signup/',views.signup,name='signup'),
+    path('post/',views.PostlistView,name='PostListView'),
     path('order/',views.order,name='order'),
     path('menucount/',Menu_OrderView,name='Menu_OrderView'),
     path('users/', user_list, name='user_list'),
