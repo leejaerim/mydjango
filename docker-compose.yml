@@ -8,3 +8,5 @@ services:
       - "8000:8000"
     volumes:
       - .:/web
+    environment: 
+      - DJANGO_DEBUG=True

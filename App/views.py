@@ -15,6 +15,7 @@ from django.contrib.auth.hashers import check_password, make_password
 import sqlite3
 from datetime import datetime
 from django.core.serializers import serialize
+import pdb
 def login(request):
     # if request.method == 'GET':
     #     users = User.objects.all().order_by('-uid')
@@ -98,7 +99,11 @@ def PostlistView(request):
         res = Post.objects.all()
         data = json.loads(serialize('json', res))
         return JsonResponse({'items': data})
-
+def getPostView(request,pk):
+    data = {}
+    if request.method == 'GET':
+        data = json.loads(serialize('json',  Post.objects.filter(pk = pk)))
+    return JsonResponse({'items': data})
 @method_decorator(csrf_exempt,name='dispatch')
 class UserView(viewsets.ModelViewSet):
     queryset = User.objects.all()

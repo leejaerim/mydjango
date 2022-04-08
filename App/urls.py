@@ -35,6 +35,7 @@ urlpatterns = format_suffix_patterns([
     path('logout/',views.logout,name='logout'),
     path('signup/',views.signup,name='signup'),
     path('post/',views.PostlistView,name='PostListView'),
+    path('post/<int:pk>/',views.getPostView,name='getPostView'),
     path('order/',views.order,name='order'),
     path('menucount/',Menu_OrderView,name='Menu_OrderView'),
     path('users/', user_list, name='user_list'),
